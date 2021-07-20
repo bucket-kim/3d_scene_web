@@ -38,6 +38,10 @@ gltfLoader.setDRACOLoader(dracoLoader);
  */
 const bakedTexture = textureLoader.load("baked.png");
 bakedTexture.flipY = false;
+bakedTexture.encoding = THREE.sRGBEncoding;
+
+const alphaTexture = textureLoader.load("alpha.png");
+alphaTexture.flipY = false;
 
 /**
  * Object
@@ -53,7 +57,11 @@ const cube = new THREE.Mesh(
  * Material
  */
 // baked material
-const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture });
+const bakedMaterial = new THREE.MeshBasicMaterial({
+  map: bakedTexture,
+  alphaMap: alphaTexture,
+  transparent: true,
+});
 
 /**
  * Model
@@ -62,6 +70,7 @@ const bakedMaterial = new THREE.MeshBasicMaterial({ map: bakedTexture });
 gltfLoader.load("scene.glb", (gltf) => {
   gltf.scene.traverse((child) => {
     child.material = bakedMaterial;
+    child.material.side = THREE.DoubleSide;
   });
   scene.add(gltf.scene);
 });
@@ -116,7 +125,7 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
+renderer.outputEncoding = THREE.sRGBEncoding;
 /**
  * Animate
  */
