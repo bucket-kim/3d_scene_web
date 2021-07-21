@@ -90,12 +90,16 @@ const paperLightMaterial = new THREE.MeshBasicMaterial({
  */
 
 gltfLoader.load("scene.glb", (gltf) => {
-  gltf.scene.traverse((child) => {
-    // console.log(child);
-    child.material = bakedMaterial;
-    child.material.side = THREE.DoubleSide;
-    child.position.y = -0.5;
-  });
+  // gltf.scene.traverse((child) => {
+  //   // console.log(child);
+  //   child.material = bakedMaterial;
+  //   child.material.side = THREE.DoubleSide;
+  //   child.position.y = -0.5;
+  // });
+
+  const bakedMesh = gltf.scene.children.find(
+    (child) => child.name === "baked_Geo"
+  );
 
   // lamp lights
   const lampLight001 = gltf.scene.children.find(
@@ -139,6 +143,7 @@ gltfLoader.load("scene.glb", (gltf) => {
   );
 
   // assigning material
+  bakedMesh.material = bakedMaterial;
 
   paperLight001.material = paperLightMaterial;
   paperLight002.material = paperLightMaterial;
