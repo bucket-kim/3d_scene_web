@@ -6,6 +6,13 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 
 /**
+ * Spector JS
+ */
+const SPECTOR = require("spectorjs");
+const spector = new SPECTOR.Spector();
+spector.displayUI();
+
+/**
  * Base
  */
 // Debug
@@ -75,7 +82,7 @@ const portalMaterial = new THREE.MeshBasicMaterial({
 });
 
 const paperLightMaterial = new THREE.MeshBasicMaterial({
-  color: 0xffffff,
+  color: 0xffffe5,
 });
 
 /**
