@@ -4,18 +4,23 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
+import firefliesVertexShader from "./shaders/fireflies/vertex.glsl";
+import firefliesFragmentShader from "./shaders/fireflies/fragment.glsl";
 
 /**
  * Spector JS
  */
 const SPECTOR = require("spectorjs");
 const spector = new SPECTOR.Spector();
-spector.displayUI();
+// spector.displayUI();
 
 /**
  * Base
  */
 // Debug
+
+const debugObj = {};
+
 const gui = new dat.GUI({
   width: 400,
 });
@@ -68,6 +73,7 @@ const bakedMaterial = new THREE.MeshBasicMaterial({
   map: bakedTexture,
   alphaMap: alphaTexture,
   transparent: true,
+  side: THREE.DoubleSide,
 });
 
 /**
@@ -90,12 +96,12 @@ const paperLightMaterial = new THREE.MeshBasicMaterial({
  */
 
 gltfLoader.load("scene.glb", (gltf) => {
-  // gltf.scene.traverse((child) => {
-  //   // console.log(child);
-  //   child.material = bakedMaterial;
-  //   child.material.side = THREE.DoubleSide;
-  //   child.position.y = -0.5;
-  // });
+  gltf.scene.traverse((child) => {
+    // console.log(child);
+    // child.material = bakedMaterial;
+    // child.material.side = THREE.DoubleSide;
+    child.position.y = -0.5;
+  });
 
   const bakedMesh = gltf.scene.children.find(
     (child) => child.name === "baked_Geo"
@@ -163,6 +169,53 @@ gltfLoader.load("scene.glb", (gltf) => {
 });
 
 /**
+ * Fireflies
+ */
+const fireFliesGeo = new THREE.BufferGeometry();
+const fireFliesCount = 60;
+const positionArr = new Float32Array(fireFliesCount * 3);
+const scaleArr = new Float32Array(fireFliesCount);
+
+for (let i = 0; i < fireFliesCount; i++) {
+  positionArr[i * 3 + 0] = (Math.random() - 0.5) * 10;
+  positionArr[i * 3 + 1] = Math.random() * 5.5;
+  positionArr[i * 3 + 2] = (Math.random() - 0.5) * 10;
+
+  scaleArr[i] = Math.random();
+}
+
+fireFliesGeo.setAttribute(
+  "position",
+  new THREE.BufferAttribute(positionArr, 3)
+);
+fireFliesGeo.setAttribute("aScale", new THREE.BufferAttribute(scaleArr, 1));
+
+// Material
+const fireFliesMat = new THREE.ShaderMaterial({
+  uniforms: {
+    uTime: { value: 0 },
+    uPixelRatio: { value: Math.min(window.devicePixelRatio, 2) },
+    uSize: { value: 200 },
+  },
+  transparent: true,
+  vertexShader: firefliesVertexShader,
+  fragmentShader: firefliesFragmentShader,
+  blending: THREE.AdditiveBlending,
+  depthWrite: false,
+});
+
+gui
+  .add(fireFliesMat.uniforms.uSize, "value")
+  .min(0)
+  .max(500)
+  .step(1)
+  .name("firefliesSize");
+
+// Points
+const fireflies = new THREE.Points(fireFliesGeo, fireFliesMat);
+scene.add(fireflies);
+
+/**
  * Sizes
  */
 const sizes = {
@@ -182,6 +235,12 @@ window.addEventListener("resize", () => {
   // Update renderer
   renderer.setSize(sizes.width, sizes.height);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+  // update fireflies
+  fireFliesMat.uniforms.uPixelRatio.value = Math.min(
+    window.devicePixelRatio,
+    2
+  );
 });
 
 /**
@@ -213,6 +272,12 @@ const renderer = new THREE.WebGLRenderer({
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputEncoding = THREE.sRGBEncoding;
+
+debugObj.clearColor = "#0a1425";
+renderer.setClearColor(debugObj.clearColor);
+gui.addColor(debugObj, "clearColor").onChange(() => {
+  renderer.setClearColor(debugObj.clearColor);
+});
 /**
  * Animate
  */
@@ -220,6 +285,9 @@ const clock = new THREE.Clock();
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
+
+  // update material
+  fireFliesMat.uniforms.uTime.value = elapsedTime;
 
   // Update controls
   controls.update();
