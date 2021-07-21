@@ -64,14 +64,89 @@ const bakedMaterial = new THREE.MeshBasicMaterial({
 });
 
 /**
+ * light material
+ */
+const lightMaterial = new THREE.MeshBasicMaterial({
+  color: 0xfceea7,
+});
+
+const portalMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+});
+
+const paperLightMaterial = new THREE.MeshBasicMaterial({
+  color: 0xffffff,
+});
+
+/**
  * Model
  */
 
 gltfLoader.load("scene.glb", (gltf) => {
   gltf.scene.traverse((child) => {
+    // console.log(child);
     child.material = bakedMaterial;
     child.material.side = THREE.DoubleSide;
+    child.position.y = -0.5;
   });
+
+  // lamp lights
+  const lampLight001 = gltf.scene.children.find(
+    (child) => child.name === "lampGlass_Geo"
+  );
+  const lampLight002 = gltf.scene.children.find(
+    (child) => child.name === "lampGlass001_Geo"
+  );
+  const lampLight003 = gltf.scene.children.find(
+    (child) => child.name === "lampGlass002_Geo"
+  );
+  const lampLight004 = gltf.scene.children.find(
+    (child) => child.name === "lampGlass003_Geo"
+  );
+
+  const portalLight = gltf.scene.children.find(
+    (child) => child.name === "portal_Geo"
+  );
+
+  // paper lights
+  const paperLight001 = gltf.scene.children.find(
+    (child) => child.name === "paperLight001_Geo"
+  );
+  const paperLight002 = gltf.scene.children.find(
+    (child) => child.name === "paperLight002_Geo"
+  );
+  const paperLight003 = gltf.scene.children.find(
+    (child) => child.name === "paperLight003_Geo"
+  );
+  const paperLight004 = gltf.scene.children.find(
+    (child) => child.name === "paperLight004_Geo"
+  );
+  const paperLight005 = gltf.scene.children.find(
+    (child) => child.name === "paperLight005_Geo"
+  );
+  const paperLight006 = gltf.scene.children.find(
+    (child) => child.name === "paperLight006_Geo"
+  );
+  const paperLight007 = gltf.scene.children.find(
+    (child) => child.name === "paperLight007_Geo"
+  );
+
+  // assigning material
+
+  paperLight001.material = paperLightMaterial;
+  paperLight002.material = paperLightMaterial;
+  paperLight003.material = paperLightMaterial;
+  paperLight004.material = paperLightMaterial;
+  paperLight005.material = paperLightMaterial;
+  paperLight006.material = paperLightMaterial;
+  paperLight007.material = paperLightMaterial;
+
+  lampLight001.material = lightMaterial;
+  lampLight002.material = lightMaterial;
+  lampLight003.material = lightMaterial;
+  lampLight004.material = lightMaterial;
+  portalLight.material = portalMaterial;
+
   scene.add(gltf.scene);
 });
 
@@ -107,9 +182,9 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.x = 4;
-camera.position.y = 2;
-camera.position.z = 4;
+camera.position.x = 9;
+camera.position.y = 5;
+camera.position.z = 9;
 scene.add(camera);
 
 // Controls
